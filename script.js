@@ -62,9 +62,13 @@
   $$("[data-ini-novia]").forEach((e) => (e.textContent = C.novia[0]));
   $$("[data-ini-novio]").forEach((e) => (e.textContent = C.novio[0]));
   document.title = `${C.novia} & ${C.novio} · Nos casamos`;
-  $("#frase").textContent = "“" + C.frase + "”";
-  if (C.fraseRef) $("#fraseRef").textContent = C.fraseRef; else $("#fraseRef").remove();
-  if (C.frase2) $("#frase2").textContent = "“" + C.frase2 + "”"; else $("#historia2").remove();
+  const F1 = "El amor nunca deja de ser.", F1R = "1 Corintios 13:8",
+    F2 = "Nos elegimos un día, sin imaginar que este amor, construido en cada abrazo, en cada desafío y en cada sueño compartido, llegaría a convertirse en el regalo de Dios más grande: Nuestra Familia.";
+  let fr = (C.frase || "").trim();
+  if (!fr || /corintios/i.test(fr)) fr = F1;
+  $("#frase").textContent = "“" + fr.replace(/^[“"]|[”"]$/g, "") + "”";
+  $("#fraseRef").textContent = C.fraseRef || F1R;
+  $("#frase2").textContent = "“" + (C.frase2 || F2) + "”";
   $("#footNames").textContent = `${C.novia} & ${C.novio}`;
   $("#hashtag").textContent = C.hashtag;
   const fmt = (d, o) => d.toLocaleDateString("es-AR", o);
