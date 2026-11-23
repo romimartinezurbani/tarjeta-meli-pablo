@@ -1,0 +1,33 @@
+rules_version = '2';
+// Pegá esto en Firebase → Firestore Database → Reglas → Publicar.
+// La web solo puede AGREGAR documentos válidos; nadie desde afuera puede leer, editar ni borrar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function texto(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function num(v, max) { return v is int && v >= 0 && v <= max; }
+
+    match /rsvps/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasAll(['nombre', 'asiste', 'adultos', 'menores', 'menu_infantil'])
+        && request.resource.data.keys().hasOnly(['nombre', 'asiste', 'adultos', 'menores', 'menu_infantil', 'edades_menores', 'restricciones', 'invitado_link'])
+        && texto(request.resource.data.nombre, 2, 120)
+        && request.resource.data.asiste is bool
+        && num(request.resource.data.adultos, 10)
+        && num(request.resource.data.menores, 10)
+        && num(request.resource.data.menu_infantil, 10)
+        && request.resource.data.menu_infantil <= request.resource.data.menores
+        && (!('edades_menores' in request.resource.data) || texto(request.resource.data.edades_menores, 0, 120))
+        && (!('restricciones' in request.resource.data) || texto(request.resource.data.restricciones, 0, 300))
+        && (!('invitado_link' in request.resource.data) || texto(request.resource.data.invitado_link, 0, 80));
+    }
+
+    match /canciones/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasAll(['cancion'])
+        && request.resource.data.keys().hasOnly(['nombre', 'cancion'])
+        && texto(request.resource.data.cancion, 1, 150)
+        && (!('nombre' in request.resource.data) || texto(request.resource.data.nombre, 0, 120));
+    }
+  }
+}

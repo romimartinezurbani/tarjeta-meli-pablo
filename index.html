@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meli & Pablo · Nos casamos</title>
+<meta name="description" content="Estás invitado al casamiento de Meli y Pablo. Mirá todos los detalles y confirmá tu asistencia.">
+<meta property="og:title" content="Meli & Pablo · ¡Nos casamos!">
+<meta property="og:description" content="Estás invitado a nuestro casamiento. Entrá para ver todos los detalles.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#3d5448">
+<link rel="preload" href="fonts/great-vibes-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="locked">
+
+<!-- ===== PUERTA DE ENTRADA ===== -->
+<div id="gate" class="gate">
+  <div class="gate-card">
+    <div class="seal">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring" cx="60" cy="60" r="56"/><circle class="ring r2" cx="60" cy="60" r="50"/></svg>
+      <div class="mono script"><span data-ini-novia></span><i>&</i><span data-ini-novio></span></div>
+    </div>
+    <p class="label">Estás invitado a la boda de</p>
+    <p class="gate-names"><span data-novia></span> <em>y</em> <span data-novio></span></p>
+    <p class="gate-guest" id="introGuest" hidden></p>
+    <div class="gate-btns">
+      <button class="btn" id="enterMusic">Entrar con música</button>
+      <button class="btn ghost" id="enterSilent">Entrar sin música</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<button id="musicBtn" class="music-btn" aria-label="Activar o pausar música">
+  <span class="eq"><i></i><i></i><i></i><i></i></span>
+</button>
+<div id="ytwrap" style="position:fixed;bottom:0;right:0;width:200px;height:200px;opacity:0.01;pointer-events:none;z-index:-1;overflow:hidden;"><div id="ytplayer"></div></div>
+<audio id="audio" loop preload="none"></audio>
+
+<main id="main">
+  <!-- hilo dorado que se dibuja al scrollear -->
+  <div class="thread" aria-hidden="true">
+    <svg viewBox="0 0 100 1000" preserveAspectRatio="none"><path id="th1"/><path id="th2"/></svg>
+    <i class="tip" id="tip"></i>
+  </div>
+
+  <!-- ===== PORTADA ===== -->
+  <header class="hero" id="hero">
+    <p class="label eyebrow">¡Nos casamos!</p>
+    <h2 class="names" id="names">
+      <span class="nm n1" data-split="novia"></span>
+      <span class="amp script">&</span>
+      <span class="nm n2" data-split="novio"></span>
+    </h2>
+    <p class="hero-date" id="heroDate"></p>
+    <div class="cue" aria-hidden="true"><i></i></div>
+  </header>
+
+  <!-- ===== RETRATO ===== -->
+  <section class="portrait">
+    <div class="arch" id="arch"><div class="ph script">♡</div></div>
+  </section>
+
+  <!-- ===== FRASE + CONTADOR ===== -->
+  <section class="sec center" id="cuenta">
+    <div class="badge"><svg class="ico draw" data-ico="hourglass"></svg></div>
+    <p class="quote reveal" id="frase"></p>
+    <p class="quote-ref label reveal" id="fraseRef"></p>
+    <div class="countdown reveal" id="countdown">
+      <div><b id="cd-d">0</b><span>días</span></div><div><b id="cd-h">0</b><span>horas</span></div>
+      <div><b id="cd-m">0</b><span>min</span></div><div><b id="cd-s">0</b><span>seg</span></div>
+    </div>
+    <p class="cd-msg reveal" id="cdMsg"></p>
+  </section>
+
+  <!-- ===== INVITADO ===== -->
+  <section class="sec center" id="invitadosSec" hidden>
+    <p class="label reveal">Invitación para</p>
+    <p class="guest-name script reveal" id="guestName"></p>
+    <p class="muted reveal">Nos haría muy felices compartir este día con vos.</p>
+  </section>
+
+  <!-- ===== LUGARES ===== -->
+  <section class="sec center" id="lugar">
+    <div class="cols">
+      <article class="col reveal" id="colCeremonia"></article>
+      <article class="col reveal" id="colFiesta" style="--d:.15s"></article>
+    </div>
+  </section>
+
+  <!-- ===== RSVP ===== -->
+  <section class="sec center" id="rsvp">
+    <div class="badge"><svg class="ico draw" data-ico="envelope"></svg></div>
+    <h3 class="title reveal">¿Venís?</h3>
+    <p class="muted reveal" id="rsvpTxt"></p>
+    <p class="price reveal" id="valorTarjeta"></p>
+    <form id="rsvpForm" class="form reveal" novalidate>
+      <input id="rName" type="text" placeholder="Tu nombre y apellido" required maxlength="120">
+      <div class="row2">
+        <label class="fl">Adultos (contándote)<select id="rAdults"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label class="fl">Menores de edad<select id="rKids"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+      </div>
+      <div class="kids" id="kidsBox">
+        <p class="muted" id="kidsNote"></p>
+        <label class="fl">¿Cuántos van con menú infantil?<select id="rMenu"></select></label>
+        <input id="rAges" type="text" placeholder="Edades de los chicos (ej: 4 y 9)" maxlength="120">
+      </div>
+      <input id="rDiet" type="text" placeholder="Menú especial / alergias (opcional)" maxlength="300">
+      <input id="rWeb" class="hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="note" id="rsvpMsg" role="status"></p>
+      <div class="btn-row"><button class="btn" type="submit" data-resp="si">Confirmo</button><button class="btn ghost" type="submit" data-resp="no">No puedo ir</button></div>
+    </form>
+    <div class="ask reveal">
+      <div class="badge sm"><svg class="ico draw" data-ico="chat"></svg></div>
+      <p class="label">¿Tenés alguna consulta?</p>
+      <p class="ask-t">Escribinos</p>
+      <a class="btn" id="askWa" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- ===== GALERÍA ===== -->
+  <section class="sec center" id="historia2">
+    <div class="badge"><svg class="ico draw" data-ico="heart"></svg></div>
+    <p class="quote reveal" id="frase2"></p>
+  </section>
+
+  <section class="sec center" id="galeria">
+    <h3 class="title reveal">Retratos de nuestro amor</h3>
+    <div class="gallery" id="gallery"></div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <!-- ===== DETALLES ===== -->
+  <section class="sec center" id="detalles">
+    <h3 class="title reveal">Fiesta</h3>
+    <p class="muted reveal">Hagamos juntos una fiesta épica. Aquí algunos detalles a tener en cuenta.</p>
+    <div class="stack">
+      <article class="item reveal">
+        <div class="badge sm"><svg class="ico draw" data-ico="music"></svg></div>
+        <h4>Música</h4>
+        <p>¿Cuál es la canción que no debe faltar en la playlist?</p>
+        <button class="btn" data-modal="song">Sugerir canción</button>
+      </article>
+      <article class="item reveal" id="dressItem">
+        <div class="badge sm"><svg class="ico draw" data-ico="hanger"></svg></div>
+        <p class="label">Dress code</p>
+        <h4 class="caps" id="dressTitle"></h4>
+        <div id="dressBody"></div>
+      </article>
+      <article class="item reveal" id="giftItem">
+        <div class="badge sm"><svg class="ico draw" data-ico="gift"></svg></div>
+        <h4>Regalos</h4>
+        <p id="regaloTxt"></p>
+        <div class="alias"><small>Alias</small><b id="aliasTxt"></b><small id="titularTxt"></small><button class="btn" id="copyAlias">Copiar alias</button></div>
+      </article>
+      <article class="item reveal" id="tipsItem">
+        <div class="badge sm"><svg class="ico draw" data-ico="clip"></svg></div>
+        <h4>Tips y notas</h4>
+        <ul id="tipsList"></ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== REDES ===== -->
+  <section class="sec center">
+    <div class="badge"><svg class="ico draw" data-ico="insta"></svg></div>
+    <p class="hashtag script reveal" id="hashtag"></p>
+    <p class="muted reveal">Etiquetanos y usá el hashtag en tus fotos y stories</p>
+    <div class="btn-row reveal" id="redes"></div>
+  </section>
+
+  <footer class="footer center">
+    <svg class="ico draw big" data-ico="heart"></svg>
+    <p class="script names-f" id="footNames"></p>
+    <p class="muted">Con todo nuestro amor</p>
+  </footer>
+</main>
+
+<!-- ===== MODALES ===== -->
+<div class="modal" id="modal-song"><div class="sheet"><button class="x" aria-label="Cerrar">×</button>
+  <h4>¿Qué canción no puede faltar?</h4><p class="muted">Contanos qué tema te hace bailar y lo sumamos a la playlist.</p>
+  <input id="sSong" type="text" placeholder="Canción y artista"><input id="sName" type="text" placeholder="Tu nombre">
+  <p class="note" id="songMsg" role="status"></p>
+  <button class="btn" id="sendSong">Enviar</button></div></div>
+<div class="modal lightbox" id="lightbox"><button class="x" aria-label="Cerrar">×</button><img alt=""></div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+<script src="https://www.youtube.com/iframe_api" async></script>
+</body>
+</html>
